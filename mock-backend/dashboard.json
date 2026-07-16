@@ -1,0 +1,12 @@
+{
+  "status": 200,
+  "response_message": "Success",
+  "response_body": {
+    "note": "The React demo currently uses src/services/dashboardService.js as its stub. Replace that service with fetch('/api/dev-platform-dashboard') to use this mock BFF.",
+    "environments": [
+      {"key": "DEV", "services": {"total": 3, "running": 3, "degraded": 0}, "deployments": {"total": 3, "successful": 3, "failed": 0}},
+      {"key": "QA", "services": {"total": 3, "running": 2, "degraded": 1}, "deployments": {"total": 5, "successful": 3, "failed": 2}},
+      {"key": "UAT", "services": {"total": 3, "running": 2, "degraded": 1}, "deployments": {"total": 5, "successful": 3, "failed": 2}}
+    ]
+  }
+}
