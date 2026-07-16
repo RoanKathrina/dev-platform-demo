@@ -1,25 +1,26 @@
 # Developer Platform Demo Architecture
 
 ```mermaid
-flowchart LR
-    U[Developer] --> R[React Dashboard]
-    R -->|GET /api/dev-platform-dashboard| BFF[FastAPI BFF]
-    BFF --> E[Environment Service]
-    BFF --> D[Deployment Service]
-    E --> DEV[DEV server health]
-    E --> QA[QA server health]
-    E --> UAT[UAT server health]
-    D --> DB[(Deployment data store)]
+flowchart TD
+    UI[React Dashboard] -->|GET /api/dev-platform-dashboard| BFF[FastAPI BFF]
+    BFF -->|parallel| EDEV[Environment Stub: DEV]
+    BFF -->|parallel| EQA[Environment Stub: QA]
+    BFF -->|parallel| EUAT[Environment Stub: UAT]
+    BFF -->|parallel| DDEV[Deployment Stub: DEV]
+    BFF -->|parallel| DQA[Deployment Stub: QA]
+    BFF -->|parallel| DUAT[Deployment Stub: UAT]
+    EDEV --> BFF
+    EQA --> BFF
+    EUAT --> BFF
+    DDEV --> BFF
+    DQA --> BFF
+    DUAT --> BFF
+    BFF -->|normalized dashboard DTO| UI
 ```
 
-## Demo boundary
+## Boundary
 
-The current implementation uses a stubbed service in the React application. The BFF and downstream microservices are represented by contracts so that the UI can be developed without waiting for infrastructure integrations.
-
-## Recommended production flow
-
-1. React calls a single dashboard BFF endpoint.
-2. The BFF calls environment and deployment services in parallel.
-3. The BFF normalizes partial failures and returns one dashboard-oriented contract.
-4. React renders values directly; presentation-only derivations use `useMemo`.
-5. Child components remain stateless and do not repeat API calls.
+- React owns rendering, routing, loading state, and error state.
+- React does not contain sample platform data.
+- FastAPI owns dummy endpoint responses and dashboard aggregation.
+- The endpoint contracts can later be backed by real environment and deployment microservices.

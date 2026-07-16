@@ -17,7 +17,7 @@ export default function DashboardPage() {
     setIsLoading(true);
     setError('');
     try {
-      const response = await getDashboard({ useStub: true });
+      const response = await getDashboard();
       setDashboard(response.response_body);
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Unable to load dashboard');
@@ -47,7 +47,7 @@ export default function DashboardPage() {
   }, [dashboard]);
 
   if (isLoading) {
-    return <div className="page-state"><span className="spinner"/><h2>Loading dashboard…</h2><p>Reading the stubbed BFF response.</p></div>;
+    return <div className="page-state"><span className="spinner"/><h2>Loading dashboard…</h2><p>Reading data from the FastAPI BFF.</p></div>;
   }
 
   if (error || !dashboard || !summary) {

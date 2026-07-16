@@ -1,61 +1,72 @@
 # Developer Platform Dashboard Demo
 
-A React dashboard portfolio project for a developer self-service platform. The only implemented page is **Dashboard**; Environments, Deployments, and Audit Logs are intentionally empty placeholders.
+A React + FastAPI portfolio demo for a developer self-service platform. The Dashboard is implemented; Environments, Deployments, and Audit Logs remain placeholders.
+
+## Architecture used by this package
+
+```text
+React Dashboard
+      |
+      | GET /api/dev-platform-dashboard
+      v
+FastAPI BFF
+      |
+      +-- environment endpoint stubs: DEV, QA, UAT
+      +-- deployment endpoint stubs: DEV, QA, UAT
+      |
+      v
+Normalized dashboard response
+```
+
+**The frontend contains no dashboard stub.** Dummy environment and deployment responses are generated only in the backend.
 
 ## Demo data
 
-- DEV: 1 deployment target, 3 deployments, 3 successful, 3 services, 3 running
-- QA: 1 deployment target, 5 deployments, 3 successful, 2 failed, 3 services, 2 running, 1 degraded
-- UAT: 1 deployment target, 5 deployments, 3 successful, 2 failed, 3 services, 2 running, 1 degraded
+| Environment | Deployments | Successful | Failed | Services | Running | Degraded |
+|---|---:|---:|---:|---:|---:|---:|
+| DEV | 3 | 3 | 0 | 3 | 3 | 0 |
+| QA | 5 | 3 | 2 | 3 | 2 | 1 |
+| UAT | 5 | 3 | 2 | 3 | 2 | 1 |
 
-Totals shown on the dashboard:
+## Run in two terminals
 
-- 3 environments
-- 9 services: 7 healthy/running, 2 degraded
-- 13 deployments over 7 days
-- 9 successful deployments
-- 4 failed deployments
-
-## Run the React application
+### Terminal 1 — FastAPI backend
 
 ```bash
+cd backend
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+
+API documentation: `http://localhost:8000/docs`
+
+### Terminal 2 — React frontend
+
+```bash
+npm config set registry https://registry.npmjs.org/
 npm install
 npm run dev
 ```
 
-Open `http://localhost:5173`.
+Open `http://localhost:5173`. Vite proxies `/api` requests to FastAPI on port 8000.
 
-## Stub strategy
+## Frontend behavior
 
-`src/services/dashboardService.js` returns a Promise containing the mock BFF response. The component calls it exactly as it would call a real asynchronous backend service.
-
-To switch to a real or mock FastAPI endpoint, change:
+`src/services/dashboardService.js` performs a normal `fetch` call:
 
 ```js
-getDashboard({ useStub: true })
+fetch('/api/dev-platform-dashboard')
 ```
 
-to:
+It has no `useStub` switch and no hard-coded dashboard data.
 
-```js
-getDashboard({ useStub: false })
-```
+## Backend extension point
 
-## Optional FastAPI mock BFF
+For the demo, these functions return backend stubs:
 
-```bash
-cd mock-backend
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
-```
+- `read_environment_stub(environment)`
+- `read_deployment_stub(environment)`
 
-## Important implementation decisions
-
-- The parent Dashboard page owns fetching, loading, and error state.
-- Child cards receive normalized data through props.
-- Child components do **not** use `useEffect` to recompute values.
-- `useMemo` is used only for derived aggregate totals.
-- One BFF endpoint supports the entire dashboard.
-- The frontend has no knowledge of downstream microservice topology.
+Later, replace their internals with HTTP clients, SSH/Docker health checks, database queries, or dedicated microservice integrations. The React contract does not need to change.
