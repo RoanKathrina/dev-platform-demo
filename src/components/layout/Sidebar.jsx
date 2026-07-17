@@ -13,7 +13,7 @@ export default function Sidebar({ activePage, onNavigate }) {
       <div className="brand">
         <div className="brand-mark"><Icon name="cube" size={29} /></div>
         <div>
-          <div className="brand-title">Developer Platform</div>
+          <div className="brand-title">OTPP Developer Platform</div>
           <div className="brand-subtitle">Developer Self-Service Portal</div>
         </div>
       </div>
